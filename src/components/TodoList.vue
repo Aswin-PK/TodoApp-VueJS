@@ -1,7 +1,7 @@
 <template>
     <ul>
         <li v-for="todo in todos" :key="todo.id">
-            <TodoItem :todo="todo" @toggleStatus="toggleStatus" @delete="deleteTodo" />
+            <TodoItem :todo="todo" @toggleStatus="toggleStatus" @editTask="editTask" @delete="deleteTodo" />
         </li>
     </ul>
 </template>
@@ -22,6 +22,10 @@ export default {
         toggleStatus(todoId) {
             // toggling the status of completion of Task
             this.$emit('toggleStatus', todoId)
+        },
+        editTask(todoId) {
+            // console.log('ListTodo', todoId)
+            this.$emit('edit', todoId)
         },
         deleteTodo(todoId) {
             this.$emit('delete', todoId);

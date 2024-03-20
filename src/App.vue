@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <TodoStatus :todos="todos"></TodoStatus>
-    <TodoForm @add="addTodo"></TodoForm>
-    <TodoList :todos="todos" @toggleStatus="updateCompletionStatus" @delete="deleteTodo"></TodoList>
+    <TodoForm @handleInput="handleInput" :initialValue="taskToEdit"></TodoForm>
+    <TodoList :todos="todos" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo"></TodoList>
   </div>
 </template>
 
@@ -22,18 +22,33 @@ export default {
   data() {
     return {
       todos: [],
+      taskToEdit: "",
+      editTodoId: null
     }
   },
   methods: {
 
-    addTodo(newTask) {
-      const newTodo = {
-        id: Date.now(),
-        task: newTask,
-        isCompleted: false
-      }
+    handleInput(taskInput) {
 
-      this.todos.push(newTodo);
+      console.log('taskInput -> ', taskInput)
+
+      if(this.editTodoId !== null) {
+        const todoIndex = this.todos.findIndex(todo => todo.id === this.editTodoId); // fetch index by matching Task Id
+        
+        if(todoIndex !== -1) {
+          this.todos[todoIndex].task = taskInput
+        }
+        this.editTodoId = null
+      }
+      else {
+        const newTodo = {
+          id: Date.now(),
+          task: taskInput,
+          isCompleted: false
+        }
+        
+        this.todos.push(newTodo);
+      }
     },
 
     // Update the status of completion of the task
@@ -47,7 +62,30 @@ export default {
       }
     },
 
-    // recieve ID of the todo from the <TodoItem> component
+    // Edit todo
+    editTodo(todoId) {
+
+      const todoIndex = this.todos.findIndex(todo => todo.id === todoId); // fetch index by matching Task Id
+      if (todoIndex !== -1) {
+        this.editTodoId = todoId
+        this.taskToEdit = this.todos[todoIndex].task
+      }
+
+      // if(editedTask !== null) console.log('first -> ', editedTask)
+
+      //   if(editedTask !== undefined) {
+      //     this.todos[todoIndex].task = editedTask
+      //   }
+
+      //   else {
+      //     this.taskToEdit = this.todos[todoIndex];
+      //   }
+      // }
+
+    },
+
+
+    // Delete Todo by recieving ID of the todo from the <TodoItem> component
     deleteTodo(todoId) {
       this.todos = this.todos.filter(todo => todo.id !== todoId);
     }

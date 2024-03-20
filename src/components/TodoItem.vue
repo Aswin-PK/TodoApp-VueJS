@@ -2,11 +2,10 @@
     <div class="todo-item">
         <div class="left-side">
             <span @click="toggleStatus" id="task-status" :class="{ taskcompleted: todo.isCompleted }"></span>
-            <span v-if="!isEditable" :class="{ completed: todo.isCompleted }">{{ task }}</span>
-            <input v-else type="text" v-model="editedTask" @keyup.enter="saveEdit" />
+            <span :class="{ completed: todo.isCompleted }">{{ todo.task }}</span>
         </div>
         <div class="right-side">
-            <button @click="toggleEdit"><i class="fa-regular fa-pen-to-square"></i></button>
+            <button @click="editTask"><i class="fa-regular fa-pen-to-square"></i></button>
             <button @click="deleteTask"><i class="fa-regular fa-trash-can"></i></button>
         </div>
     </div>
@@ -18,27 +17,12 @@ export default {
     props: {
         todo: Object
     },
-    data() {
-        return {
-            task: this.todo.task,
-            isEditable: false,
-            editedTask: ''
-        }
-    },
     methods: {
         toggleStatus() {
             this.$emit('toggleStatus', this.todo.id)
         },
-        toggleEdit() {
-            this.isEditable = !this.isEditable;
-            if(this.isEditable) this.editedTask = this.task;
-        },
-        saveEdit() {
-            if (this.editedTask.trim() === '') {
-                return;
-            }
-            this.task = this.editedTask;
-            this.isEditable = false;
+        editTask() {
+            this.$emit('editTask', this.todo.id)
         },
         deleteTask() {
             this.$emit('delete', this.todo.id)
@@ -52,7 +36,6 @@ export default {
     .todo-item {
         height: 100%;
         width: 100%;
-        /* background: #dacac13c; */
         padding: 0.3rem 0.5rem;
         border: 1px solid #dacac1ee;
         border-radius: 0.4rem;

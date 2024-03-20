@@ -1,6 +1,6 @@
 <template>
-    <form @submit.prevent="addTodo">
-        <input type="text" v-model="newTask" id="new-task" placeholder="Write your next task" />
+    <form @submit.prevent="handleSubmit">
+        <input type="text" v-model="taskInput" id="new-task" placeholder="Write your next task" />
         <button type="submit">+</button>
     </form>
 </template>
@@ -9,16 +9,42 @@
 <script>
 export default {
     name: "TodoForm",
+
+    props: {
+        initialValue: String
+    },
+
     data() {
         return {
-            newTask: ''
+            taskInput: ''
         };
     },
+
+    watch: {
+        initialValue: {
+            handler(newVal) {
+                // Update taskInput whenever taskToBeEdited changes
+                this.taskInput = newVal || '';
+            },
+            immediate: true // Trigger the handler immediately on component creation
+        }
+    },
+    
     methods: {
-        addTodo() {
-            if(this.newTask.trim() === '') return  // handle case when nothing entered in the todo input box
-            this.$emit('add', this.newTask);
-            this.newTask = ''
+        handleSubmit() {
+            if (this.taskInput.trim() === '') return;  // handle case when nothing entered in the todo input box
+
+            // if (this.taskToBeEdited) {
+            //     console.log('todoId', this.taskToBeEdited.id, 'editedTask:', this.taskInput)
+            //     this.$emit('edit', { todoId: this.taskToBeEdited.id, editedTask: this.taskInput })
+            // }
+
+            else {
+                // console.log('this.taskInput', this.taskInput)
+                this.$emit('handleInput', this.taskInput);
+            }
+            // Reset the input field
+            this.taskInput = '';
         }
     }
 
