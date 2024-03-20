@@ -2,7 +2,7 @@
   <div id="app">
     <TodoStatus :todos="todos"></TodoStatus>
     <TodoForm @handleInput="handleInput" :initialValue="taskToEdit"></TodoForm>
-    <TodoList :todos="todos" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo"></TodoList>
+    <TodoList :todos="sortedTaskList" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo"></TodoList>
   </div>
 </template>
 
@@ -26,9 +26,23 @@ export default {
       editTodoId: null
     }
   },
+  computed: {
+    sortedTaskList() {
+      const priorityAllocation = {
+        low: 0,
+        medium: 1,
+        high: 2
+      }
+
+      const sortedTasks = [...this.todos].sort((a, b) => priorityAllocation[b.priority] - priorityAllocation[a.priority]);
+
+      console.log('sortedTasks - ', sortedTasks)
+      return sortedTasks
+    }
+  },
   methods: {
 
-    handleInput(taskInput) {
+    handleInput(taskInput, selectedPriority) {
 
       console.log('taskInput -> ', taskInput)
 
@@ -36,7 +50,8 @@ export default {
         const todoIndex = this.todos.findIndex(todo => todo.id === this.editTodoId); // fetch index by matching Task Id
         
         if(todoIndex !== -1) {
-          this.todos[todoIndex].task = taskInput
+          this.todos[todoIndex].task = taskInput 
+          this.todos[todoIndex].priority = selectedPriority
         }
         this.editTodoId = null
       }
@@ -44,7 +59,8 @@ export default {
         const newTodo = {
           id: Date.now(),
           task: taskInput,
-          isCompleted: false
+          isCompleted: false,
+          priority: selectedPriority,
         }
         
         this.todos.push(newTodo);

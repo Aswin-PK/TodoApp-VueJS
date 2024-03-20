@@ -55,6 +55,7 @@ export default {
         width: 1.6rem;
         border-radius: 50%;
         border: 2px solid orangered;
+        cursor: pointer;
     }
     .left-side span.taskcompleted {
         border: none !important;
