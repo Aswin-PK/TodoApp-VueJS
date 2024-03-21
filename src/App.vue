@@ -2,12 +2,13 @@
   <div id="app">
     <TodoStatus :todos="todos"></TodoStatus>
     <TodoForm @handleInput="handleInput" :initialValue="taskToEdit"></TodoForm>
-    <TodoList :todos="sortedTaskList" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo"></TodoList>
+    <TodoList :todos="sortedTaskList" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo" @swapTask="handleTodoSwap"></TodoList>
   </div>
 </template>
 
 <script>
 
+// import Vue from 'vue';
 import TodoStatus from './components/TodoStatus.vue'
 import TodoForm from './components/TodoForm.vue'
 import TodoList from './components/TodoList.vue'
@@ -36,15 +37,13 @@ export default {
 
       const sortedTasks = [...this.todos].sort((a, b) => priorityAllocation[b.priority] - priorityAllocation[a.priority]);
 
-      console.log('sortedTasks - ', sortedTasks)
+      // console.log('sortedTasks == ', sortedTasks)
       return sortedTasks
     }
   },
   methods: {
 
     handleInput(taskInput, selectedPriority) {
-
-      console.log('taskInput -> ', taskInput)
 
       if(this.editTodoId !== null) {
         const todoIndex = this.todos.findIndex(todo => todo.id === this.editTodoId); // fetch index by matching Task Id
@@ -86,25 +85,73 @@ export default {
         this.editTodoId = todoId
         this.taskToEdit = this.todos[todoIndex].task
       }
-
-      // if(editedTask !== null) console.log('first -> ', editedTask)
-
-      //   if(editedTask !== undefined) {
-      //     this.todos[todoIndex].task = editedTask
-      //   }
-
-      //   else {
-      //     this.taskToEdit = this.todos[todoIndex];
-      //   }
-      // }
-
     },
 
 
     // Delete Todo by recieving ID of the todo from the <TodoItem> component
     deleteTodo(todoId) {
       this.todos = this.todos.filter(todo => todo.id !== todoId);
+    },
+
+ 
+    handleTodoSwap(direction, todoIndex){
+      
+      if (direction === 'down' && todoIndex < this.sortedTaskList.length - 1) {
+        
+        // Storing the taskname and status of the list to be swapped
+
+        const swappingTaskname = this.sortedTaskList[todoIndex].task
+        const swappingTaskStatus = this.sortedTaskList[todoIndex].isCompleted
+        const updatedTodos = [...this.sortedTaskList]
+
+        // Updating the todoItem that is to be swapped
+
+        updatedTodos[todoIndex] = {
+          ...updatedTodos[todoIndex],
+          task: this.sortedTaskList[todoIndex+1].task,
+          isCompleted: this.sortedTaskList[todoIndex+1].isCompleted
+        }
+        
+        // Updating the todoItem that is to be swapped with
+
+        updatedTodos[todoIndex + 1] = {
+          ...updatedTodos[todoIndex + 1],
+          task: swappingTaskname,
+          isCompleted: swappingTaskStatus
+        }
+
+        this.todos = updatedTodos
+
+      }
+
+      else if(direction === 'up' && todoIndex > 0) {
+
+        // Storing the taskname and status of the list to be swapped
+        const swappingTaskname = this.sortedTaskList[todoIndex].task
+        const swappingTaskStatus = this.sortedTaskList[todoIndex].isCompleted
+
+        const updatedTodos = [...this.sortedTaskList]
+        
+        // Updating the todoItem that is to be swapped
+        updatedTodos[todoIndex] = {
+          ...updatedTodos[todoIndex],
+          task: this.sortedTaskList[todoIndex - 1].task,
+          isCompleted: this.sortedTaskList[todoIndex - 1].isCompleted
+        }
+
+        // Updating the todoItem that is to be swapped with
+        updatedTodos[todoIndex - 1] = {
+          ...updatedTodos[todoIndex - 1],
+          task: swappingTaskname,
+          isCompleted: swappingTaskStatus
+        }
+
+        this.todos = updatedTodos   
+      
+      }
     }
+
+
   }
 }
 </script>
@@ -114,7 +161,6 @@ export default {
   #app {
     width: 25rem;
     min-height: 40svh;
-    /* background-color: blue; */
     padding: 0.5rem;
     display: flex;
     align-items: center;

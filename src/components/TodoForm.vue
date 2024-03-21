@@ -52,12 +52,7 @@ export default {
         handleSubmit() {
             console.log('this.selected', this.selectedPriority)
             if (this.taskInput.trim() === '') return;  // handle case when nothing entered in the todo input box
-
-            // if (this.taskToBeEdited) {
-            //     console.log('todoId', this.taskToBeEdited.id, 'editedTask:', this.taskInput)
-            //     this.$emit('edit', { todoId: this.taskToBeEdited.id, editedTask: this.taskInput })
-            // }
-
+            
             else {
                 // console.log('this.taskInput', this.taskInput)
                 this.$emit('handleInput', this.taskInput, this.selectedPriority);

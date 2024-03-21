@@ -3,10 +3,15 @@
         <div class="left-side">
             <span @click="toggleStatus" id="task-status" :class="{ taskcompleted: todo.isCompleted }"></span>
             <span :class="{ completed: todo.isCompleted }">{{ todo.task }}</span>
+            <span :class="todo.priority">{{ todo.priority }}</span>
         </div>
         <div class="right-side">
             <button @click="editTask"><i class="fa-regular fa-pen-to-square"></i></button>
             <button @click="deleteTask"><i class="fa-regular fa-trash-can"></i></button>
+            <div class="swap-arrows">
+                <span @click="handleSwap('up')"><i class="fa-solid fa-sort-up"></i></span>
+                <span @click="handleSwap('down')"><i class="fa-solid fa-sort-down"></i></span>
+            </div>
         </div>
     </div>
 </template>
@@ -15,7 +20,8 @@
 export default {
     name: "TodoItem",
     props: {
-        todo: Object
+        todo: Object,
+        index: Number
     },
     methods: {
         toggleStatus() {
@@ -26,6 +32,9 @@ export default {
         },
         deleteTask() {
             this.$emit('delete', this.todo.id)
+        },
+        handleSwap(direction) {
+            this.$emit('swap', direction, this.index)
         }
     }
 }
@@ -86,5 +95,45 @@ export default {
     
     .completed {
         text-decoration: line-through;
+    }
+
+    .swap-arrows {
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        /* justify-content: space-between; */
+        flex-direction: column;
+        gap:0.2em;
+    }
+    .swap-arrows span {
+        height: 1em;
+        display: grid;
+        place-content: center;
+        cursor: pointer;
+    }
+    .swap-arrows span i {
+        line-height: 1em;
+        font-size: 1.2em;
+        color: #a8a8a889;
+    }
+    .swap-arrows span:active i{
+        color: #dbdbdbd0;
+    }
+
+
+    .left-side .low, .medium, .high {
+        font-size: 0.9em;
+        width: auto;
+        color: #333;
+        padding: 0 0.3em;
+    }
+    .left-side .low {
+        background-color: rgb(255, 245, 112);
+    }
+    .left-side .medium {
+        background-color: rgb(255, 170, 79);
+    }
+    .left-side .high {
+        background-color: rgb(255, 92, 63);
     }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <ul>
-        <li v-for="todo in todos" :key="todo.id">
-            <TodoItem :todo="todo" @toggleStatus="toggleStatus" @editTask="editTask" @delete="deleteTodo" />
+        <li v-for="(todo, index) in todos" :key="todo.id">
+            <TodoItem :todo="todo" :index="index" @toggleStatus="toggleStatus" @editTask="editTask" @delete="deleteTodo" @swap="swapTodo" />
         </li>
     </ul>
 </template>
@@ -29,6 +29,9 @@ export default {
         },
         deleteTodo(todoId) {
             this.$emit('delete', todoId);
+        },
+        swapTodo(direction, index) {
+            this.$emit('swapTask', direction, index)
         }
     }
 
