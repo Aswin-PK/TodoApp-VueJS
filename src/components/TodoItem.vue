@@ -8,10 +8,9 @@
         <div class="right-side">
             <button @click="editTask"><i class="fa-regular fa-pen-to-square"></i></button>
             <button @click="deleteTask"><i class="fa-regular fa-trash-can"></i></button>
-            <div class="swap-arrows">
-                <span @click="handleSwap('up')"><i class="fa-solid fa-sort-up"></i></span>
-                <span @click="handleSwap('down')"><i class="fa-solid fa-sort-down"></i></span>
-            </div>
+            <button class="swapper" @click="handleSwap(todo, index)">
+                <i class="fa-solid fa-sort" :class="todo.isSwappable ? 'swap-on' : ''"></i>
+            </button>
         </div>
     </div>
 </template>
@@ -23,6 +22,12 @@ export default {
         todo: Object,
         index: Number
     },
+    data() {
+        return {
+            swapIndex1: null,
+            swapIndex2: null
+        }
+    },
     methods: {
         toggleStatus() {
             this.$emit('toggleStatus', this.todo.id)
@@ -33,8 +38,9 @@ export default {
         deleteTask() {
             this.$emit('delete', this.todo.id)
         },
-        handleSwap(direction) {
-            this.$emit('swap', direction, this.index)
+        handleSwap(todo, index) {
+            todo.isSwappable = !todo.isSwappable
+            this.$emit('swap', index)
         }
     }
 }
@@ -97,30 +103,6 @@ export default {
         text-decoration: line-through;
     }
 
-    .swap-arrows {
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        /* justify-content: space-between; */
-        flex-direction: column;
-        gap:0.2em;
-    }
-    .swap-arrows span {
-        height: 1em;
-        display: grid;
-        place-content: center;
-        cursor: pointer;
-    }
-    .swap-arrows span i {
-        line-height: 1em;
-        font-size: 1.2em;
-        color: #a8a8a889;
-    }
-    .swap-arrows span:active i{
-        color: #dbdbdbd0;
-    }
-
-
     .left-side .low, .medium, .high {
         font-size: 0.9em;
         width: auto;
@@ -135,5 +117,9 @@ export default {
     }
     .left-side .high {
         background-color: rgb(255, 92, 63);
+    }
+
+    .swapper .swap-on {
+        color: green
     }
 </style>

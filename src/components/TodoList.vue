@@ -24,14 +24,13 @@ export default {
             this.$emit('toggleStatus', todoId)
         },
         editTask(todoId) {
-            // console.log('ListTodo', todoId)
             this.$emit('edit', todoId)
         },
         deleteTodo(todoId) {
             this.$emit('delete', todoId);
         },
-        swapTodo(direction, index) {
-            this.$emit('swapTask', direction, index)
+        swapTodo(swapIndex) {
+            this.$emit('swapTask', swapIndex)
         }
     }
 

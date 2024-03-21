@@ -2,7 +2,8 @@
   <div id="app">
     <TodoStatus :todos="todos"></TodoStatus>
     <TodoForm @handleInput="handleInput" :initialValue="taskToEdit"></TodoForm>
-    <TodoList :todos="sortedTaskList" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo" @swapTask="handleTodoSwap"></TodoList>
+    <TodoList :todos="todos" @toggleStatus="updateCompletionStatus" @edit="editTodo" @delete="deleteTodo"
+      @swapTask="handleSwap"></TodoList>
   </div>
 </template>
 
@@ -24,32 +25,28 @@ export default {
     return {
       todos: [],
       taskToEdit: "",
-      editTodoId: null
-    }
-  },
-  computed: {
-    sortedTaskList() {
-      const priorityAllocation = {
+      editTodoId: null,
+      swapTaskIndex1: null,
+      swapTaskIndex2: null,
+      priorityAllocation: {
         low: 0,
         medium: 1,
         high: 2
       }
-
-      const sortedTasks = [...this.todos].sort((a, b) => priorityAllocation[b.priority] - priorityAllocation[a.priority]);
-
-      // console.log('sortedTasks == ', sortedTasks)
-      return sortedTasks
     }
   },
   methods: {
 
     handleInput(taskInput, selectedPriority) {
 
-      if(this.editTodoId !== null) {
-        const todoIndex = this.todos.findIndex(todo => todo.id === this.editTodoId); // fetch index by matching Task Id
-        
-        if(todoIndex !== -1) {
-          this.todos[todoIndex].task = taskInput 
+      // If the editTodoId is available for the task
+      if (this.editTodoId !== null) {
+
+        // fetch index by matching Task Id
+        const todoIndex = this.todos.findIndex(todo => todo.id === this.editTodoId); 
+
+        if (todoIndex !== -1) {
+          this.todos[todoIndex].task = taskInput
           this.todos[todoIndex].priority = selectedPriority
         }
         this.editTodoId = null
@@ -60,9 +57,23 @@ export default {
           task: taskInput,
           isCompleted: false,
           priority: selectedPriority,
+          isSwappable: false
         }
-        
-        this.todos.push(newTodo);
+
+        if(selectedPriority === 'high') this.todos.unshift(newTodo);
+        else if(selectedPriority === 'low') this.todos.push(newTodo);
+        else {
+          let highIndex = this.todos.findIndex(todo => todo.priority === 'high');
+
+          // if no high priority task is there the index is set to 0 for later calculation to the index for medium-task input as 0
+          highIndex = highIndex !== -1 ? highIndex : 0 
+
+          const lowIndex = this.todos.findIndex(todo => todo.priority === 'low');
+
+          const insertIndex = highIndex + lowIndex; // to get the index where medium priority todo need to be inserted
+
+          this.todos.splice(insertIndex, 0, newTodo);
+        }
       }
     },
 
@@ -93,78 +104,67 @@ export default {
       this.todos = this.todos.filter(todo => todo.id !== todoId);
     },
 
- 
-    handleTodoSwap(direction, todoIndex){
+
+    // function to swap todo Items which may or may not be adjacent
+    handleSwap(todoIndex) {
+
+      if (this.swapTaskIndex1 === null) this.swapTaskIndex1 = todoIndex;
+
+      else if (this.swapTaskIndex2 === null && todoIndex !== this.swapTaskIndex1) {
+        this.swapTaskIndex2 = todoIndex;
+        this.interchangeItems();
+      } 
       
-      if (direction === 'down' && todoIndex < this.sortedTaskList.length - 1) {
-        
-        // Storing the taskname and status of the list to be swapped
+      else {
 
-        const swappingTaskname = this.sortedTaskList[todoIndex].task
-        const swappingTaskStatus = this.sortedTaskList[todoIndex].isCompleted
-        const updatedTodos = [...this.sortedTaskList]
+        // Reset indices
+        this.swapTaskIndex1 = null;
+        this.swapTaskIndex2 = null;
+      }
+    },
 
-        // Updating the todoItem that is to be swapped
+    interchangeItems() {
 
-        updatedTodos[todoIndex] = {
-          ...updatedTodos[todoIndex],
-          task: this.sortedTaskList[todoIndex+1].task,
-          isCompleted: this.sortedTaskList[todoIndex+1].isCompleted
-        }
-        
-        // Updating the todoItem that is to be swapped with
+      const updatedTodos = [...this.todos]
 
-        updatedTodos[todoIndex + 1] = {
-          ...updatedTodos[todoIndex + 1],
-          task: swappingTaskname,
-          isCompleted: swappingTaskStatus
-        }
-
-        this.todos = updatedTodos
-
+      // Updating the todoItem that is to be swapped
+      updatedTodos[this.swapTaskIndex1] = {
+        ...updatedTodos[this.swapTaskIndex1],
+        task: this.todos[this.swapTaskIndex2].task,
+        priority: this.todos[this.swapTaskIndex2].priority,
+        isCompleted: this.todos[this.swapTaskIndex2].isCompleted,
+        isSwappable: false
       }
 
-      else if(direction === 'up' && todoIndex > 0) {
-
-        // Storing the taskname and status of the list to be swapped
-        const swappingTaskname = this.sortedTaskList[todoIndex].task
-        const swappingTaskStatus = this.sortedTaskList[todoIndex].isCompleted
-
-        const updatedTodos = [...this.sortedTaskList]
-        
-        // Updating the todoItem that is to be swapped
-        updatedTodos[todoIndex] = {
-          ...updatedTodos[todoIndex],
-          task: this.sortedTaskList[todoIndex - 1].task,
-          isCompleted: this.sortedTaskList[todoIndex - 1].isCompleted
-        }
-
-        // Updating the todoItem that is to be swapped with
-        updatedTodos[todoIndex - 1] = {
-          ...updatedTodos[todoIndex - 1],
-          task: swappingTaskname,
-          isCompleted: swappingTaskStatus
-        }
-
-        this.todos = updatedTodos   
-      
+      // Updating the todoItem that is to be swapped with
+      updatedTodos[this.swapTaskIndex2] = {
+        ...updatedTodos[this.swapTaskIndex2],
+        task: this.todos[this.swapTaskIndex1].task,
+        priority: this.todos[this.swapTaskIndex1].priority,
+        isCompleted: this.todos[this.swapTaskIndex1].isCompleted,
+        isSwappable: false
       }
+
+      this.todos = updatedTodos
+
+      this.swapTaskIndex1 = null;
+      this.swapTaskIndex2 = null;
     }
-
-
   }
+
+
 }
+
 </script>
 
 <style scoped>
-
-  #app {
-    width: 25rem;
-    min-height: 40svh;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
+#app {
+  width: 25rem;
+  min-height: 40svh;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
 </style>
