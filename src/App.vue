@@ -35,6 +35,19 @@ export default {
       }
     }
   },
+  computed: {
+    insertIndexForMediumPriority() {
+      let highIndex = this.todos.findIndex(todo => todo.priority === 'high');
+      
+      // if no high priority task is there the index is set to 0 for later calculation to the index for medium-task input as 0
+      highIndex = highIndex !== -1 ? highIndex : 0 
+      
+      const lowIndex = this.todos.findIndex(todo => todo.priority === 'low');
+      const insertIndex = highIndex + lowIndex;
+
+      return insertIndex
+    }
+  },
   methods: {
 
     handleInput(taskInput, selectedPriority) {
@@ -49,7 +62,17 @@ export default {
           this.todos[todoIndex].task = taskInput
           this.todos[todoIndex].priority = selectedPriority
         }
+
         this.editTodoId = null
+
+        // To order the todo list in terms of priority after editing
+
+        let todo = this.todos[todoIndex];
+        this.todos.splice(todoIndex, 1)
+        if(selectedPriority === 'high') this.todos.splice(0, 0, todo)
+        else if(selectedPriority === 'low') this.todos.splice(this.todos.length, 0, todo)
+        else if(selectedPriority === 'medium') this.todos.splice(this.insertIndexForMediumPriority, 0, todo)
+        
       }
       else {
         const newTodo = {
@@ -62,18 +85,8 @@ export default {
 
         if(selectedPriority === 'high') this.todos.unshift(newTodo);
         else if(selectedPriority === 'low') this.todos.push(newTodo);
-        else {
-          let highIndex = this.todos.findIndex(todo => todo.priority === 'high');
+        else this.todos.splice(this.insertIndexForMediumPriority, 0, newTodo);
 
-          // if no high priority task is there the index is set to 0 for later calculation to the index for medium-task input as 0
-          highIndex = highIndex !== -1 ? highIndex : 0 
-
-          const lowIndex = this.todos.findIndex(todo => todo.priority === 'low');
-
-          const insertIndex = highIndex + lowIndex; // to get the index where medium priority todo need to be inserted
-
-          this.todos.splice(insertIndex, 0, newTodo);
-        }
       }
     },
 
