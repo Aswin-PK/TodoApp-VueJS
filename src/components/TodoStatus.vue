@@ -19,7 +19,7 @@ export default {
     },
     computed: {
         completedTodo() {
-            return this.todos.filter(todo => todo.isCompleted).length
+            return this.todos.filter(todo => todo.isTodoCompleted).length
         }
     }
 
@@ -30,7 +30,7 @@ export default {
 <style scoped>
 .status-container {
     height: 8rem;
-    width: 100%;
+    width: 40%;
     border-radius: 1em;
     border: 1px solid #d8c8a8;
     padding: 0 2em;
@@ -56,5 +56,11 @@ export default {
     background-color: orangered;
     display: grid;
     place-content: center;
+}
+
+@media screen and (max-width: 768px) {
+    .status-container {
+        width: 20em;
+    }
 }
 </style>

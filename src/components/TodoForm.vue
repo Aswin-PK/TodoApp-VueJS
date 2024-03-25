@@ -3,15 +3,15 @@
         <div class="priority-selectors">
             <span>Select Priority:</span>
             <span>
-                <input type="radio" v-model="selectedPriority" name="priority" id="low" value="low" />
+                <input type="radio" v-model="priorityInput" name="priority" id="low" value="low" />
                 <label for="low">Low</label>
             </span>
             <span>
-                <input type="radio" v-model="selectedPriority" name="priority" id="medium" value="medium" />
+                <input type="radio" v-model="priorityInput" name="priority" id="medium" value="medium" />
                 <label for="medium">Medium</label>
             </span>
             <span>
-                <input type="radio" v-model="selectedPriority" name="priority" id="high" value="high" />
+                <input type="radio" v-model="priorityInput" name="priority" id="high" value="high" />
                 <label for="high">High</label>
             </span>
         </div>
@@ -28,13 +28,14 @@ export default {
     name: "TodoForm",
 
     props: {
-        initialValue: String
+        initialValue: String,
+        initialPriority: String
     },
 
     data() {
         return {
             taskInput: '',
-            selectedPriority: "medium"
+            priorityInput: 'medium'
         };
     },
 
@@ -45,20 +46,28 @@ export default {
                 this.taskInput = newVal || '';
             },
             immediate: true // Trigger the handler immediately on component creation
+        },
+        initialPriority: {
+            handler(newVal) {
+                // Update taskInput whenever taskToBeEdited changes
+                this.priorityInput = newVal || "medium";
+            },
+            immediate: true
         }
     },
 
     methods: {
         handleSubmit() {
-            console.log('this.selected', this.selectedPriority)
+
             if (this.taskInput.trim() === '') return;  // handle case when nothing entered in the todo input box
             
             else {
                 // console.log('this.taskInput', this.taskInput)
-                this.$emit('handleInput', this.taskInput, this.selectedPriority);
+                this.$emit('handleInput', this.taskInput, this.priorityInput);
             }
             // Reset the input field
             this.taskInput = '';
+            // this.priorityInput = 'medium';
         }
     }
 
@@ -67,7 +76,7 @@ export default {
 
 <style scoped>
 form {
-    width: 100%;
+    width: 40%;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -118,5 +127,18 @@ button {
 
 .priority-selectors span input[type="radio"], label {
     cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+    form {
+        width: 20em;
+    }
+    
+    .priority-selectors span {
+        font-size: 0.9em;
+    }
+    .priority-selectors span:first-child {
+        font-size: 0.6em
+    }
 }
 </style>

@@ -1,17 +1,19 @@
 <template>
     <div class="todo-item">
+        <span v-if="todo.currentTodoStatus === 'In Progress' || todo.currentTodoStatus === 'Completed' " class="move-task-btn move-left" @click="moveTodoItem('left', todo.currentTodoStatus)"><i class="fa-solid fa-angles-left"></i></span>
         <div class="left-side">
-            <span @click="toggleStatus" id="task-status" :class="{ taskcompleted: todo.isCompleted }"></span>
-            <span :class="{ completed: todo.isCompleted }">{{ todo.task }}</span>
+            <span @click="statusCompleted" id="task-status" :class="{ taskcompleted: todo.currentTodoStatus === 'Completed' }"></span>
+            <span :class="{ completed: todo.currentTodoStatus === 'Completed' }">{{ todo.task }}</span>
             <span :class="todo.priority">{{ todo.priority }}</span>
         </div>
         <div class="right-side">
             <button @click="editTask"><i class="fa-regular fa-pen-to-square"></i></button>
             <button @click="deleteTask"><i class="fa-regular fa-trash-can"></i></button>
-            <button class="swapper" @click="handleSwap(todo, index)">
-                <i class="fa-solid fa-sort" :class="todo.isSwappable ? 'swap-on' : ''"></i>
+            <button class="swapper" @click="handleSwap(todo)">
+                <i class="fa-solid fa-sort" :class="todo.isSwappable ? 'swap-on' : '' "></i>
             </button>
         </div>
+        <span v-if="todo.currentTodoStatus === 'In Progress' || todo.currentTodoStatus === 'Not Started' " class="move-task-btn move-right" @click="moveTodoItem('right', todo.currentTodoStatus)"><i class="fa-solid fa-angles-right"></i></span>
     </div>
 </template>
 
@@ -20,27 +22,26 @@ export default {
     name: "TodoItem",
     props: {
         todo: Object,
-        index: Number
-    },
-    data() {
-        return {
-            swapIndex1: null,
-            swapIndex2: null
-        }
     },
     methods: {
-        toggleStatus() {
-            this.$emit('toggleStatus', this.todo.id)
+        statusCompleted() {
+            this.$emit('statusCompleted', this.todo.id)
         },
         editTask() {
             this.$emit('editTask', this.todo.id)
         },
         deleteTask() {
+            console.log('this.todo.id', this.todo.id)
             this.$emit('delete', this.todo.id)
         },
-        handleSwap(todo, index) {
+        handleSwap(todo) {
             todo.isSwappable = !todo.isSwappable
-            this.$emit('swap', index)
+            console.log('todo.id', todo.id)
+            this.$emit('swap', todo.id)
+        },
+        moveTodoItem(direction, currentStatus) {
+            console.log('direction', direction, 'currentStatus', currentStatus)
+            this.$emit('moveTask', direction, currentStatus, this.todo.id)
         }
     }
 }
@@ -49,8 +50,9 @@ export default {
 
 <style scoped>
     .todo-item {
+        position: relative;
         height: 100%;
-        width: 100%;
+        width: 90%;
         padding: 0.3rem 0.5rem;
         border: 1px solid #dacac1ee;
         border-radius: 0.4rem;
@@ -122,4 +124,33 @@ export default {
     .swapper .swap-on {
         color: green
     }
+
+
+    .todo-item .move-task-btn {
+        position: absolute;
+        height: 2.6em;
+        width:  2.6em;
+        display: grid;
+        place-content: center;
+        right: -2.8em;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.2s ease-in-out;
+    }
+    .todo-item .move-left {
+        left: -2.8em;
+    }
+
+    .todo-item .move-task-btn:hover {
+        background-color: #474747b1;
+    }
+
+    @media screen and (max-width: 768px) {
+    .todo-item .move-task-btn {
+        transform: rotate(90deg)
+    }
+    .todo-item .move-left {
+        left: -2.8em;
+    }
+}
 </style>
